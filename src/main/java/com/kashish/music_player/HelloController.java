@@ -17,6 +17,7 @@ public class HelloController implements Initializable {
     @FXML private Label songNameLabel;
     @FXML private AnchorPane mainAnchorPane;
     @FXML private Slider songVolume;
+    // TODO: Update progress bar to slider for seeking and update state of music in time limit
     @FXML private ProgressBar songProgress;
     @FXML private ComboBox<String> songSpeed;
     @FXML private Button songPlay, songPause, songReset, songPrevious, songNext;
@@ -34,6 +35,7 @@ public class HelloController implements Initializable {
 
     public void songPlay(ActionEvent event) {
         beginTimer(event);
+        mediaPlayer.setVolume(songVolume.getValue() * .01);
         changeSpeed(event);
         mediaPlayer.play();
     }
@@ -92,7 +94,7 @@ public class HelloController implements Initializable {
                 if (current == end) cancelTimer(event);
             }
         };
-        timer.schedule(timerTask, 1000, 1000);
+        timer.schedule(timerTask, 0, 1000);
     }
 
     public void cancelTimer(ActionEvent event) {
@@ -128,6 +130,8 @@ public class HelloController implements Initializable {
         songVolume.valueProperty().addListener((observable, oldValue, newValue) -> {
             mediaPlayer.setVolume(songVolume.getValue() * .01);
         });
+
+        songProgress.setStyle("-fx-accent: #00ff00;");
     }
 
     private void changeSpeed(ActionEvent event) {

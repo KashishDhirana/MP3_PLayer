@@ -1,6 +1,7 @@
 package com.kashish.music_player;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -18,6 +19,10 @@ public class HelloApplication extends Application {
         stage.getIcons().addAll(new Image("/icons/AppIcon16.png"), new Image("/icons/AppIcon32.png"), new Image("/icons/AppIcon48.png"));
         stage.setScene(scene);
         stage.setResizable(false);
+        stage.setOnCloseRequest(event -> {
+            Platform.exit();
+            System.exit(0);
+        });
         stage.show();
     }
 
