@@ -1,0 +1,11 @@
+#mainAnchorPane {
+    -fx-background-color: #bde0fe;
+}
+
+.label {
+    -fx-text-fill: #38a0ff;
+}
+
+#songProgress {
+    -fx-accent: #ffc8dd;
+}
