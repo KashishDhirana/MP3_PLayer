@@ -1,5 +1,6 @@
 package com.kashish.music_player;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -14,13 +15,19 @@ import java.net.URL;
 import java.util.*;
 
 public class HelloController implements Initializable {
-    @FXML private Label songNameLabel, fullSongTimeLabel, currentTimeLabel;
-    @FXML private AnchorPane mainAnchorPane;
-    @FXML private Slider songVolume;
+    @FXML
+    private Label songNameLabel, fullSongTimeLabel, currentTimeLabel, volumeLabel;
+    @FXML
+    private AnchorPane mainAnchorPane;
+    @FXML
+    private Slider songVolume;
     // TODO: Update progress bar to slider for seeking and update state of music in time limit
-    @FXML private ProgressBar songProgress;
-    @FXML private ComboBox<String> songSpeed;
-    @FXML private Button songPlayPause, songReset, songPrevious, songNext;
+    @FXML
+    private ProgressBar songProgress;
+    @FXML
+    private ComboBox<String> songSpeed;
+    @FXML
+    private Button songPlayPause, songReset, songPrevious, songNext;
 
     private ArrayList<File> songNames;
 
@@ -36,7 +43,7 @@ public class HelloController implements Initializable {
     public void songPlayPause(ActionEvent event) {
         mediaPlayer.setVolume(songVolume.getValue() * .01);
         changeSpeed(event);
-        if(mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+        if (mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
             cancelTimer(event);
             mediaPlayer.pause();
         } else {
@@ -51,13 +58,13 @@ public class HelloController implements Initializable {
     }
 
     public void songPrevious(ActionEvent event) {
-        if(songNumber >= 1) {
+        if (songNumber >= 1) {
             songNumber--;
         } else {
             songNumber = songNames.size() - 1;
         }
         mediaPlayer.stop();
-        if(running) cancelTimer(event);
+        if (running) cancelTimer(event);
         media = new Media(songNames.get(songNumber).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
         songNameLabel.setText(songNames.get(songNumber).getName());
@@ -67,13 +74,13 @@ public class HelloController implements Initializable {
     }
 
     public void songNext(ActionEvent event) {
-        if(songNumber < songNames.size() - 1) {
+        if (songNumber < songNames.size() - 1) {
             songNumber++;
         } else {
             songNumber = 0;
         }
         mediaPlayer.stop();
-        if(running) cancelTimer(event);
+        if (running) cancelTimer(event);
         media = new Media(songNames.get(songNumber).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
         songNameLabel.setText(songNames.get(songNumber).getName());
@@ -87,10 +94,14 @@ public class HelloController implements Initializable {
                 running = true;
                 double current = mediaPlayer.getCurrentTime().toSeconds();
                 double end = media.getDuration().toSeconds();
-                System.out.println(current + " " + end + " : " + current / end);
-                System.out.println((int)mediaPlayer.getCurrentTime().toMinutes() + ">:<" + (int)mediaPlayer.getCurrentTime().toMinutes() / 60);
-                songProgress.setProgress(current / end);
-                currentTimeLabel.setText((int)mediaPlayer.getCurrentTime().toMinutes() + ":" + (int)mediaPlayer.getCurrentTime().toSeconds());
+                double progress = current / end;
+//                System.out.println(current + " " + end + " : " + current / end);
+//                System.out.println((int)mediaPlayer.getCurrentTime().toMinutes() + ">:<" + (int)mediaPlayer.getCurrentTime().toMinutes() / 60);
+//                currentTimeLabel.setText((int)mediaPlayer.getCurrentTime().toMinutes() + ":" + (int)mediaPlayer.getCurrentTime().toSeconds());
+                Platform.runLater(() -> {
+                    songProgress.setProgress(progress);
+                    currentTimeLabel.setText(String.format("%02d:%02d", (int) current / 60, (int) current % 60));
+                });
 
                 if (current == end) cancelTimer(event);
             }
@@ -110,8 +121,8 @@ public class HelloController implements Initializable {
 //        System.out.println(songDirectory.getAbsolutePath());
         File[] songFiles = songDirectory.listFiles();
 
-        if(songFiles != null) {
-            for(File file: songFiles) {
+        if (songFiles != null) {
+            for (File file : songFiles) {
                 songNames.add(file);
                 System.out.println(file);
             }
@@ -130,14 +141,18 @@ public class HelloController implements Initializable {
 
         songVolume.valueProperty().addListener((_, _, _) -> {
             mediaPlayer.setVolume(songVolume.getValue() * .01);
+            volumeLabel.setText((int)songVolume.getValue() + "%");
         });
 
 //        songProgress.setStyle("-fx-accent: #00ff00;");
-        Duration totalDuration = mediaPlayer.getTotalDuration();
-        int totalMinutes = (int) totalDuration.toMinutes();
-        int totalSeconds = (int) totalDuration.toSeconds() % 60;
+        mediaPlayer.setOnReady(() -> {
+                    double totalDuration = media.getDuration().toSeconds();
+                    Platform.runLater(() -> {
+                        fullSongTimeLabel.setText(String.format("%02d:%02d", (int) totalDuration / 60, (int) totalDuration % 60));
+                    });
+                }
+        );
 
-        fullSongTimeLabel.setText(String.format("%02d:%02d", totalMinutes, totalSeconds));
     }
 
     private void changeSpeed(ActionEvent event) {
