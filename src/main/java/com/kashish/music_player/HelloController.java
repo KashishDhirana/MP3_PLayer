@@ -5,11 +5,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
-import org.controlsfx.control.action.Action;
 
 import java.io.File;
 import java.net.URL;
@@ -52,17 +52,9 @@ public class HelloController implements Initializable {
         } else {
             setSongPlay(event);
         }
-
-        mediaPlayer.setOnReady(() -> Platform.runLater(() -> {
-//                    if (getMediaPlayerStatus) songPlayPause(event);
-                    double totalTime = media.getDuration().toSeconds();
-                    songProgress.setMax(totalTime);
-                    mediaPlayer.currentTimeProperty().addListener((_, oldValue, _) -> {
-                        double updatedValue = oldValue.toSeconds()+1;
-                        songProgress.setValue(updatedValue);
-                    });
-                })
-        );
+        if (isMediaPlaying() && media.getDuration().toSeconds() == mediaPlayer.getCurrentTime().toSeconds()) {
+            songNext(event);
+        }
     }
 
     private void setSongPlay(ActionEvent event) {
@@ -131,9 +123,10 @@ public class HelloController implements Initializable {
                 running = true;
                 double current = mediaPlayer.getCurrentTime().toSeconds();
                 double end = media.getDuration().toSeconds();
-//                double progress = current / end;
+                double progress = current / end;
                 Platform.runLater(() -> {
                     currentTimeLabel.setText(String.format("%02d:%02d", (int) current / 60, (int) current % 60));
+                    songProgress.setValue(current);
                 });
                 if (current == end) cancelTimer(event);
             }
@@ -178,6 +171,7 @@ public class HelloController implements Initializable {
                                 fullSongTimeLabel.setText(String.format("%02d:%02d",
                                         (int) totalDuration / 60,
                                         (int) totalDuration % 60));
+                                songProgress.setMin(0);
                                 songProgress.setMax(totalDuration);
                             }
                     );
@@ -200,5 +194,11 @@ public class HelloController implements Initializable {
     // Return MediaPlayer State of playing or paused
     private boolean isMediaPlaying() {
         return mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+    }
+
+    public void seekSong(MouseEvent dragEvent) {
+        double seek = songProgress.getValue();
+        System.out.println(seek/1000);
+        mediaPlayer.seek(new Duration(seek/1000));
     }
 }

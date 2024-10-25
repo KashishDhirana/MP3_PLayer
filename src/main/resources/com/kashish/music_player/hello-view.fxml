@@ -27,5 +27,5 @@
    <Label fx:id="currentTimeLabel" layoutX="15.0" layoutY="85.0" text="00:00" />
    <Label fx:id="fullSongTimeLabel" alignment="CENTER_RIGHT" layoutX="510.0" layoutY="85.0" prefHeight="18.0" prefWidth="74.0" text="--:--" />
    <Label fx:id="volumeLabel" layoutX="557.0" layoutY="136.0" text="50%" />
-   <Slider fx:id="songProgress" blockIncrement="1" layoutX="14.0" layoutY="107.0" prefHeight="14.0" prefWidth="572.0" />
+   <Slider fx:id="songProgress" blockIncrement="1" layoutX="14.0" layoutY="107.0" onMouseClicked="#seekSong" prefHeight="14.0" prefWidth="572.0" />
 </AnchorPane>
