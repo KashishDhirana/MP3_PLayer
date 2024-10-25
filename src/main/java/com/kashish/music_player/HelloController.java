@@ -1,9 +1,11 @@
 package com.kashish.music_player;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -14,13 +16,19 @@ import java.net.URL;
 import java.util.*;
 
 public class HelloController implements Initializable {
-    @FXML private Label songNameLabel;
-    @FXML private AnchorPane mainAnchorPane;
-    @FXML private Slider songVolume;
-    // TODO: Update progress bar to slider for seeking and update state of music in time limit
-    @FXML private ProgressBar songProgress;
-    @FXML private ComboBox<String> songSpeed;
-    @FXML private Button songPlay, songPause, songReset, songPrevious, songNext;
+
+    // Declarations
+    @FXML
+    private Label songNameLabel, fullSongTimeLabel, currentTimeLabel, volumeLabel;
+    @FXML
+    private AnchorPane mainAnchorPane;
+    @FXML
+    private Slider songVolume, songProgress;
+    // TODO: Update progress bar to slider for seeking and update state of music in time limit in V_2.0.0
+    @FXML
+    private ComboBox<String> songSpeed;
+    @FXML
+    private Button songPlayPause, songReset, songPrevious, songNext;
 
     private ArrayList<File> songNames;
 
@@ -33,53 +41,80 @@ public class HelloController implements Initializable {
     private Media media;
     private MediaPlayer mediaPlayer;
 
-    public void songPlay(ActionEvent event) {
-        beginTimer(event);
+    private boolean getMediaPlayerStatus;
+
+    // Setting MediaPlayer media play state.
+    public void songPlayPause(ActionEvent event) {
         mediaPlayer.setVolume(songVolume.getValue() * .01);
         changeSpeed(event);
-        mediaPlayer.play();
+        if (isMediaPlaying()) {
+            setSongPause(event);
+        } else {
+            setSongPlay(event);
+        }
+        if (isMediaPlaying() && media.getDuration().toSeconds() == mediaPlayer.getCurrentTime().toSeconds()) {
+            songNext(event);
+        }
     }
 
-    public void songPause(ActionEvent event) {
+    private void setSongPlay(ActionEvent event) {
+        beginTimer(event);
+        mediaPlayer.play();
+        getMediaPlayerStatus = true;
+    }
+
+    private void setSongPause(ActionEvent event) {
         cancelTimer(event);
         mediaPlayer.pause();
+        getMediaPlayerStatus = false;
     }
 
     public void songReset(ActionEvent event) {
-        songProgress.setProgress(0);
+        setSongPause(event);
         mediaPlayer.seek(new Duration(0));
+        songProgress.setValue(0);
+        currentTimeLabel.setText("00:00");
     }
 
+
+    // Select song prev or next
     public void songPrevious(ActionEvent event) {
-        if(songNumber >= 1) {
+        if (songNumber >= 1) {
             songNumber--;
         } else {
             songNumber = songNames.size() - 1;
         }
-        mediaPlayer.stop();
-        if(running) cancelTimer(event);
-        media = new Media(songNames.get(songNumber).toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
-        songNameLabel.setText(songNames.get(songNumber).getName());
-
-        songPlay(event);
+        nextItem(event);
     }
 
     public void songNext(ActionEvent event) {
-        if(songNumber < songNames.size() - 1) {
+        if (songNumber < songNames.size() - 1) {
             songNumber++;
         } else {
             songNumber = 0;
         }
-        mediaPlayer.stop();
-        if(running) cancelTimer(event);
-        media = new Media(songNames.get(songNumber).toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
-        songNameLabel.setText(songNames.get(songNumber).getName());
-
-        songPlay(event);
+        nextItem(event);
     }
 
+    private void nextItem(ActionEvent event) {
+        mediaPlayer.stop();
+        currentTimeLabel.setText("00:00");
+        if (running) cancelTimer(event);
+        media = new Media(songNames.get(songNumber).toURI().toString());
+        mediaPlayer = new MediaPlayer(media);
+        songNameLabel.setText(songNames.get(songNumber).getName().split("_-_")[0]);
+        mediaPlayer.setOnReady(() -> {
+                    double totalDuration = media.getDuration().toSeconds();
+                    Platform.runLater(() -> {
+                        fullSongTimeLabel.setText(String.format("%02d:%02d", (int) totalDuration / 60, (int) totalDuration % 60));
+                        songProgress.setMax(totalDuration);
+                    });
+                }
+        );
+        if (getMediaPlayerStatus) setSongPlay(event);
+    }
+
+    // Timer to check and update how much time is completed by media
     public void beginTimer(ActionEvent event) {
         timer = new Timer();
         TimerTask timerTask = new TimerTask() {
@@ -88,16 +123,18 @@ public class HelloController implements Initializable {
                 running = true;
                 double current = mediaPlayer.getCurrentTime().toSeconds();
                 double end = media.getDuration().toSeconds();
-                System.out.println(current + " " + end + " : " + current / end);
-                songProgress.setProgress(current / end);
-
+                double progress = current / end;
+                Platform.runLater(() -> {
+                    currentTimeLabel.setText(String.format("%02d:%02d", (int) current / 60, (int) current % 60));
+                    songProgress.setValue(current);
+                });
                 if (current == end) cancelTimer(event);
             }
         };
         timer.schedule(timerTask, 0, 1000);
     }
 
-    public void cancelTimer(ActionEvent event) {
+    public void cancelTimer(ActionEvent ignoredEvent) {
         running = false;
         timer.cancel();
     }
@@ -106,32 +143,41 @@ public class HelloController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         songNames = new ArrayList<>();
         File songDirectory = new File("src/main/resources/musics");
-//        System.out.println(songDirectory.getAbsolutePath());
         File[] songFiles = songDirectory.listFiles();
 
-        if(songFiles != null) {
-            for(File file: songFiles) {
-                songNames.add(file);
-                System.out.println(file);
-            }
+        if (songFiles != null) {
+            Collections.addAll(songNames, songFiles);
         }
 
         media = new Media(songNames.get(songNumber).toURI().toString());
         mediaPlayer = new MediaPlayer(media);
 
-        songNameLabel.setText(songNames.get(songNumber).getName());
+        songNameLabel.setText(songNames.get(songNumber).getName().split("_-_")[0]);
 
         for (int speed : songSpeeds) {
-            songSpeed.getItems().add(Integer.toString(speed) + "%");
+            songSpeed.getItems().add(speed + "%");
         }
 
         songSpeed.setOnAction(this::changeSpeed);
 
-        songVolume.valueProperty().addListener((observable, oldValue, newValue) -> {
+        songVolume.valueProperty().addListener((_, _, _) -> {
             mediaPlayer.setVolume(songVolume.getValue() * .01);
+            volumeLabel.setText((int) songVolume.getValue() + "%");
         });
 
-        songProgress.setStyle("-fx-accent: #00ff00;");
+        mediaPlayer.setOnReady(() -> {
+                    double totalDuration = media.getDuration().toSeconds();
+                    Platform.runLater(() -> {
+                                fullSongTimeLabel.setText(String.format("%02d:%02d",
+                                        (int) totalDuration / 60,
+                                        (int) totalDuration % 60));
+                                songProgress.setMin(0);
+                                songProgress.setMax(totalDuration);
+                            }
+                    );
+                    getMediaPlayerStatus = isMediaPlaying();
+                }
+        );
     }
 
     private void changeSpeed(ActionEvent event) {
@@ -140,8 +186,19 @@ public class HelloController implements Initializable {
             return;
         }
         // By Kashish Dhirana (me)
-//        mediaPlayer.setRate(Integer.parseInt(songSpeed.getValue().split("%")[0]) * .01);
+        mediaPlayer.setRate(Integer.parseInt(songSpeed.getValue().split("%")[0]) * .01);
         // By Bro Code
-        mediaPlayer.setRate(Integer.parseInt(songSpeed.getValue().substring(0, songSpeed.getValue().length() - 1)) * .01);
+//        mediaPlayer.setRate(Integer.parseInt(songSpeed.getValue().substring(0, songSpeed.getValue().length() - 1)) * .01);
+    }
+
+    // Return MediaPlayer State of playing or paused
+    private boolean isMediaPlaying() {
+        return mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
+    }
+
+    public void seekSong(MouseEvent dragEvent) {
+        double seek = songProgress.getValue();
+        System.out.println(seek/1000);
+        mediaPlayer.seek(new Duration(seek/1000));
     }
 }

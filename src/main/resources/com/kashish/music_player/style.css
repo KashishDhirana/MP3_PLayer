@@ -1,0 +1,32 @@
+#mainAnchorPane {
+    -fx-background-color: #ffecd1;
+}
+
+.label {
+    -fx-text-fill: #001524;
+}
+
+.button, .combo-box,  .combo-box-base {
+    -fx-background-color: #78290f;
+    -fx-text-fill: #ffecd1;
+}
+
+/* Changes text color of ComboBox as well as of its list */
+.combo-box-base .text{
+    -fx-fill: #ffecd1;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #78290f;
+    -fx-border-color: #ffecd1;
+    -fx-border-width: 0 0 1 0;
+}
+
+/*Hover properties*/
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #15616d;
+}
+
+.button:hover {
+    -fx-background-color: #15616d;
+}
