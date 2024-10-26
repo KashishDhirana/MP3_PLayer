@@ -52,9 +52,6 @@ public class HelloController implements Initializable {
         } else {
             setSongPlay(event);
         }
-        if (isMediaPlaying() && media.getDuration().toSeconds() == mediaPlayer.getCurrentTime().toSeconds()) {
-            songNext(event);
-        }
     }
 
     private void setSongPlay(ActionEvent event) {
@@ -127,6 +124,9 @@ public class HelloController implements Initializable {
                 Platform.runLater(() -> {
                     currentTimeLabel.setText(String.format("%02d:%02d", (int) current / 60, (int) current % 60));
                     songProgress.setValue(current);
+                    if (getMediaPlayerStatus && media.getDuration().toSeconds() == mediaPlayer.getCurrentTime().toSeconds()) {
+                        songNext(event);
+                    }
                 });
                 if (current == end) cancelTimer(event);
             }
@@ -197,8 +197,7 @@ public class HelloController implements Initializable {
     }
 
     public void seekSong(MouseEvent dragEvent) {
-        double seek = songProgress.getValue();
-        System.out.println(seek/1000);
-        mediaPlayer.seek(new Duration(seek/1000));
+        double seek = songProgress.getValue() * 1000;
+        mediaPlayer.seek(new Duration(seek));
     }
 }
