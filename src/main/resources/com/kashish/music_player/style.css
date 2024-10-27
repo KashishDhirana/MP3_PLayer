@@ -1,32 +1,43 @@
+.root {
+    text-color: #283618;
+    frame-background-color: #fefae0;
+    custom-background-color: #dda15e;
+    hover-background-color: #bc6c25;
+}
+
 #mainAnchorPane {
-    -fx-background-color: #ffecd1;
+    -fx-background-color: frame-background-color;
 }
 
 .label {
-    -fx-text-fill: #001524;
+    -fx-text-fill: text-color;
 }
 
-.button, .combo-box,  .combo-box-base {
-    -fx-background-color: #78290f;
-    -fx-text-fill: #ffecd1;
+.combo-box,  .combo-box-base {
+    -fx-background-color: custom-background-color;
+    -fx-text-fill: text-color;
+}
+
+.button {
+    -fx-background-color: transparent;
+    -fx-background-position: center;
+    -fx-background-size: contain;
 }
 
 /* Changes text color of ComboBox as well as of its list */
 .combo-box-base .text{
-    -fx-fill: #ffecd1;
+    -fx-fill: text-color;
 }
 
-.combo-box-popup .list-cell {
-    -fx-background-color: #78290f;
-    -fx-border-color: #ffecd1;
-    -fx-border-width: 0 0 1 0;
+.combo-box-popup .list-cell, .combo-box-popup .list-view {
+    -fx-background-color: custom-background-color;
 }
 
 /*Hover properties*/
 .combo-box-popup .list-cell:hover {
-    -fx-background-color: #15616d;
+    -fx-background-color: hover-background-color;
 }
 
 .button:hover {
-    -fx-background-color: #15616d;
+    -fx-background-color: hover-background-color;
 }

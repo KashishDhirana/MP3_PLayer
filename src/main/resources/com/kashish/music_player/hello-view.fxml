@@ -8,15 +8,15 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="mainAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="170.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kashish.music_player.HelloController">
-    <Label fx:id="songNameLabel" alignment="CENTER" layoutX="65.0" layoutY="16.0" prefHeight="78.0" prefWidth="470.0" text="MP3 Player">
+    <Label fx:id="songNameLabel" alignment="CENTER" layoutX="65.0" layoutY="10.0" prefHeight="78.0" prefWidth="470.0" text="MP3 Player">
         <font>
           <Font size="36.0" />
         </font>
     </Label>
-    <Button fx:id="songPlayPause" layoutX="14.0" layoutY="131.0" mnemonicParsing="false" onAction="#songPlayPause" text="Play/Pause" />
-    <Button fx:id="songReset" layoutX="97.0" layoutY="131.0" mnemonicParsing="false" onAction="#songReset" text="Reset" />
-    <Button fx:id="songPrevious" layoutX="151.0" layoutY="131.0" mnemonicParsing="false" onAction="#songPrevious" text="Previous" />
-    <Button fx:id="songNext" layoutX="222.0" layoutY="131.0" mnemonicParsing="false" onAction="#songNext" text="Next" />
+    <Button fx:id="songPlayPause" layoutX="16.0" layoutY="124.0" mnemonicParsing="false" onAction="#songPlayPause" prefHeight="35.0" prefWidth="35.0" />
+    <Button fx:id="songReset" layoutX="62.0" layoutY="124.0" mnemonicParsing="false" onAction="#songReset" prefHeight="35.0" prefWidth="35.0" />
+    <Button fx:id="songPrevious" layoutX="108.0" layoutY="124.0" mnemonicParsing="false" onAction="#songPrevious" prefHeight="35.0" prefWidth="35.0" />
+    <Button fx:id="songNext" layoutX="154.0" layoutY="124.0" mnemonicParsing="false" onAction="#songNext" prefHeight="35.0" prefWidth="35.0" />
    <ComboBox fx:id="songSpeed" layoutX="273.0" layoutY="131.0" prefHeight="26.0" prefWidth="89.0" promptText="Speed" />
    <Slider fx:id="songVolume" layoutX="430.0" layoutY="137.0" prefHeight="14.0" prefWidth="123.0" value="50.0" />
    <Label layoutX="373.0" layoutY="134.0" text="Volume:">
@@ -24,8 +24,8 @@
          <Font size="14.0" />
       </font>
    </Label>
-   <Label fx:id="currentTimeLabel" layoutX="15.0" layoutY="85.0" text="00:00" />
-   <Label fx:id="fullSongTimeLabel" alignment="CENTER_RIGHT" layoutX="510.0" layoutY="85.0" prefHeight="18.0" prefWidth="74.0" text="--:--" />
+   <Label fx:id="currentTimeLabel" layoutX="15.0" layoutY="79.0" text="00:00" />
+   <Label fx:id="fullSongTimeLabel" alignment="CENTER_RIGHT" layoutX="510.0" layoutY="79.0" prefHeight="18.0" prefWidth="74.0" text="--:--" />
    <Label fx:id="volumeLabel" layoutX="557.0" layoutY="136.0" text="50%" />
-   <Slider fx:id="songProgress" blockIncrement="1" layoutX="14.0" layoutY="107.0" onMouseClicked="#seekSong" prefHeight="14.0" prefWidth="572.0" />
+   <Slider fx:id="songProgress" blockIncrement="1" layoutX="14.0" layoutY="101.0" onKeyPressed="#seekSong" onMouseClicked="#seekSong" onMouseDragged="#seekSong" prefHeight="14.0" prefWidth="572.0" />
 </AnchorPane>
