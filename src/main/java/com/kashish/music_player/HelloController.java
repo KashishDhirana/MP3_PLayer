@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
@@ -47,11 +48,13 @@ public class HelloController implements Initializable {
     public void songPlayPause(ActionEvent event) {
         mediaPlayer.setVolume(songVolume.getValue() * .01);
         changeSpeed(event);
-        if (isMediaPlaying()) {
+        if (isMediaPlaying())
             setSongPause(event);
-        } else {
+        else
             setSongPlay(event);
-        }
+
+        if(getMediaPlayerStatus) songPlayPause.setStyle("-fx-background-image: url('icons/pause.png')");
+        else songPlayPause.setStyle("-fx-background-image: url('icons/play.png')");
     }
 
     private void setSongPlay(ActionEvent event) {
@@ -68,7 +71,7 @@ public class HelloController implements Initializable {
 
     public void songReset(ActionEvent event) {
         setSongPause(event);
-        mediaPlayer.seek(new Duration(0));
+        seekSong(0);
         songProgress.setValue(0);
         currentTimeLabel.setText("00:00");
     }
@@ -178,6 +181,12 @@ public class HelloController implements Initializable {
                     getMediaPlayerStatus = isMediaPlaying();
                 }
         );
+
+        // Buttons initial image
+        songPlayPause.setStyle("-fx-background-image: url('icons/play.png')");
+        songReset.setStyle("-fx-background-image: url('icons/reset.png')");
+        songPrevious.setStyle("-fx-background-image: url('icons/previous.png')");
+        songNext.setStyle("-fx-background-image: url('icons/next.png')");
     }
 
     private void changeSpeed(ActionEvent event) {
@@ -196,8 +205,17 @@ public class HelloController implements Initializable {
         return mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING);
     }
 
-    public void seekSong(MouseEvent dragEvent) {
+    public void seekSong(MouseEvent ignoredDragEvent) {
+        seekSong();
+    }
+    public void seekSong(KeyEvent ignoredDragEvent) {
+        seekSong();
+    }
+    public void seekSong() {
         double seek = songProgress.getValue() * 1000;
+        mediaPlayer.seek(new Duration(seek));
+    }
+    public void seekSong(double seek) {
         mediaPlayer.seek(new Duration(seek));
     }
 }
